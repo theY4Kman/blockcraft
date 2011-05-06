@@ -1,0 +1,5 @@
+name: BlockCraft
+
+main: they4kman.blockcraft.BlockCraft
+
+version: 0.1
