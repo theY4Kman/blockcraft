@@ -30,7 +30,7 @@ public class HitB extends JavaPlugin
         // Register our events
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvent(Event.Type.PLAYER_CHAT,
-            new BlockCraftPlayerListener(this), Priority.Low, this);
+            new HitBPlayerListener(this), Priority.Low, this);
     }
     
     public void onDisable()
