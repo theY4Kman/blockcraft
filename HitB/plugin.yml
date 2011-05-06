@@ -1,5 +1,5 @@
-name: BlockCraft
+name: Hole in the Blocks
 
-main: they4kman.blockcraft.BlockCraft
+main: they4kman.hitb.HitB
 
 version: 0.1
