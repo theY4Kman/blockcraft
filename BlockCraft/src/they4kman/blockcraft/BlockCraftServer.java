@@ -6,6 +6,8 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.Location;
+import org.bukkit.material.Wool;
+import org.bukkit.DyeColor;
 
 public class BlockCraftServer
 {
@@ -16,6 +18,12 @@ public class BlockCraftServer
     
     private ZMQ.Context m_Context;
     private ZMQ.Socket m_Socket;
+    
+    private static byte[] m_Blocks;
+    
+    private static final DyeColor[] m_Colors = {DyeColor.WHITE, DyeColor.ORANGE,
+        DyeColor.MAGENTA, DyeColor.YELLOW, DyeColor.SILVER, DyeColor.PURPLE,
+        DyeColor.BLUE, DyeColor.BROWN, DyeColor.GREEN, DyeColor.RED};
     
     /**
      * center: The ground center of the blockcraft stage (y=player's feet)
@@ -43,27 +51,31 @@ public class BlockCraftServer
                     {
                         final byte[] data = m_Socket.recv(0);
                         
-                        /* Run the place blocks task */
-                        m_Plugin.getServer().getScheduler().scheduleSyncDelayedTask(
-                            m_Plugin, new Runnable()
-                            {
-                                public void run()
+                        World world = m_Player.getWorld();
+                        for (int x=0; x<36; x++)
+                            for (int y=0; y<9; y++)
+                                for (int z=0; z<36; z++)
                                 {
-                                    /* xyz, yzx, yxz, zxy, zyx */
-                                    World world = m_Player.getWorld();
-                                    for (int x=0; x<36; x++)
-                                        for (int y=0; y<9; y++)
-                                            for (int z=0; z<36; z++)
-                                            {
-                                                Block b = world.getBlockAt(m_Origin.getBlockX()+x,
-                                                    m_Origin.getBlockY()+y, m_Origin.getBlockZ()+z);
-                                                
-                                                b.setType(data[x*9*36+y*36+z] == 1 ? Material.GRASS : Material.AIR);
-                                            }
+                                    Block b = world.getBlockAt(m_Origin.getBlockX()+x,
+                                        m_Origin.getBlockY()+y, m_Origin.getBlockZ()+z);
+                                    
+                                    if (getDataAtCoord(data, x,y,z) == 0)
+                                        b.setType(Material.AIR);
+                                    else
+                                    {
+                                        b.setType(Material.WOOL);
+                                        
+                                        Wool d = new Wool(Material.WOOL);
+                                        d.setColor(m_Colors[z]);
+                                    }
                                 }
-                            });
                     }
                 }
             });
+    }
+    
+    static private byte getDataAtCoord(byte[] data, int x, int y, int z)
+    {
+        return data[x*9*36+y*36+z];
     }
 }
