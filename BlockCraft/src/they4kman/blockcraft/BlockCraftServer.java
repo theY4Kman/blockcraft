@@ -67,6 +67,7 @@ public class BlockCraftServer
                                         
                                         Wool d = new Wool(Material.WOOL);
                                         d.setColor(m_Colors[z]);
+                                        b.setData(d.getData());
                                     }
                                 }
                     }
