@@ -69,7 +69,7 @@ public class HitBServer
             {
                 public void run()
                 {
-                    final int offsetx = 18-HitBGame.BOARD_WIDTH;
+                    final int offsetxz = 18-HitBGame.BOARD_WIDTH/2;
                     
                     /* Start the game main loop */
                     m_Plugin.getServer().getScheduler().scheduleAsyncDelayedTask(m_Plugin,
@@ -90,21 +90,25 @@ public class HitBServer
                         if (!m_Game.freezeBuild())
                         {
                             World world = m_Player.getWorld();
+                            world.getBlockAt(m_Origin).setType(Material.STONE);/////
                             for (int x=0; x<HitBGame.BOARD_WIDTH; x++)
                                 for (int y=0; y<9; y++)
                                     for (int z=0; z<HitBGame.BOARD_WIDTH; z++)
                                     {
-                                        Block b = world.getBlockAt(m_Origin.getBlockX()+x+offsetx,
-                                            m_Origin.getBlockY()+y, m_Origin.getBlockZ()+z);
+                                        Block b = world.getBlockAt(m_Origin.getBlockX()+x,
+                                            m_Origin.getBlockY()+8-y, m_Origin.getBlockZ()+z);
                                         
-                                        if (getDataAtCoord(data, x,y,z) == 0)
+                                        if (b == null)/////////////////////////////////////////////
+                                            System.out.println("NULLSHUTFUCKTITS!");/////////////////////////////
+                                        
+                                        if (getDataAtCoord(data, offsetxz+x,y,offsetxz+z) == 0)
                                             b.setType(Material.AIR);
                                         else
                                         {
                                             b.setType(Material.WOOL);
                                             
                                             Wool d = new Wool(Material.WOOL);
-                                            d.setColor(m_Colors[z]);
+                                            d.setColor(m_Colors[y]);
                                         }
                                     }
                         

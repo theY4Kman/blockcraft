@@ -152,6 +152,9 @@ public class HitBGame
                 for (int y=0; y<9; y++)
                     for (int x=0; x<12; x++)
                     {
+                        if (m_Server == null)
+                            System.out.println("MOFUCKINNULL");
+                        
                         if ((m_Server.getDataAtCoord(blocks, x,y,BOARD_LENGTH-1-m_WallOffset) == 1 ? true : false)
                                 != m_CurCutout[8-y][x])
                         {
@@ -175,6 +178,9 @@ public class HitBGame
                 {
                     Block b = world.getBlockAt(m_Origin.getBlockX()+x-1,
                         m_Origin.getBlockY()+y, m_Origin.getBlockZ()+BOARD_LENGTH-1-m_WallOffset);
+                    
+                    if (b == null)
+                        System.out.println("NULLSHUTFUCKTITS!");
                     
                     if (m_CurCutout[8-y][x])
                     {
