@@ -90,16 +90,12 @@ public class HitBServer
                         if (!m_Game.freezeBuild())
                         {
                             World world = m_Player.getWorld();
-                            world.getBlockAt(m_Origin).setType(Material.STONE);/////
-                            for (int x=0; x<HitBGame.BOARD_WIDTH; x++)
-                                for (int y=0; y<9; y++)
+                            for (int x=2; x<HitBGame.BOARD_WIDTH; x++)
+                                for (int y=0; y<HitBGame.BOARD_HEIGHT; y++)
                                     for (int z=0; z<HitBGame.BOARD_WIDTH; z++)
                                     {
-                                        Block b = world.getBlockAt(m_Origin.getBlockX()+x,
+                                        Block b = world.getBlockAt(m_Origin.getBlockX()+x-2,
                                             m_Origin.getBlockY()+8-y, m_Origin.getBlockZ()+z);
-                                        
-                                        if (b == null)/////////////////////////////////////////////
-                                            System.out.println("NULLSHUTFUCKTITS!");/////////////////////////////
                                         
                                         if (getDataAtCoord(data, offsetxz+x,y,offsetxz+z) == 0)
                                             b.setType(Material.AIR);

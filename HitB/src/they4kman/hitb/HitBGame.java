@@ -30,6 +30,10 @@ public class HitBGame
     private int m_CurRound = 1;
     private boolean m_RedrawWall = false;
     private boolean m_FreezeBuild = true;
+    private boolean m_LostRound = false;
+    private boolean m_BlockFound = false;
+    
+    private int m_Score = 0;
     
     private boolean m_Halt = false;
     
@@ -70,11 +74,16 @@ public class HitBGame
         m_RedrawWall = true;
         /* Reset cutout */
         m_CurCutout = null;
+        /* Reset block found for cutout matching */
+        m_BlockFound = false;
         
         /* Next round */
         m_CurRound++;
         /* Reset round time to 5-second countdown */
         m_RoundTime = -5*20;
+        
+        /* Tell the player their current score */
+        m_Player.sendMessage(String.format("Score: %d", m_Score));
         
         /* 1 second delay between rounds */
         return 20;
@@ -121,12 +130,13 @@ public class HitBGame
         
         if (m_RoundTime < 0)
         {
+            /* Pre-round countdown, 1 tick per second */
             nextstep = 20;
-            m_Player.sendMessage(String.format("Round %d starts in %d seconds",
-                m_CurRound, -m_RoundTime/20));
+            m_Player.sendMessage(String.format("Round %d starts in %d second%s",
+                m_CurRound, -m_RoundTime/20, (-m_RoundTime/20) == 1 ? "" : "s"));
             m_RoundTime += nextstep;
         }
-        else if (m_RoundTime < (BOARD_LENGTH/2)*20)
+        else if (m_RoundTime < (BOARD_LENGTH)*20/2 && m_CurCutout != null)
         {
             
             /* Clear current wall */
@@ -136,40 +146,86 @@ public class HitBGame
                 {
                     Block b = world.getBlockAt(m_Origin.getBlockX()+x-1,
                         m_Origin.getBlockY()+y, m_Origin.getBlockZ()+BOARD_LENGTH-1-m_WallOffset);
-                    b.setType(Material.AIR);
+                    if (b != null)
+                        b.setType(Material.AIR);
                 }
             
             
             m_WallOffset++;
             m_RedrawWall = true;
             
-            if (m_RoundTime < 10*20)
+            if (m_RoundTime < 9*20)
                 m_FreezeBuild = false;
             else
             {
                 m_FreezeBuild = true;
                 byte[] blocks = m_Server.getBlocks();
-                for (int y=0; y<9; y++)
-                    for (int x=0; x<12; x++)
+                boolean design_matched = true;
+                boolean block_found = false;
+                for (int y=0; y<HitBGame.BOARD_HEIGHT && !m_LostRound; y++)
+                    for (int x=2; x<HitBGame.BOARD_WIDTH && !m_LostRound; x++)
                     {
-                        if (m_Server == null)
-                            System.out.println("MOFUCKINNULL");
-                        
-                        if ((m_Server.getDataAtCoord(blocks, x,y,BOARD_LENGTH-1-m_WallOffset) == 1 ? true : false)
-                                != m_CurCutout[8-y][x])
+                        /* If the block exists in the build area */
+                        if (m_Server.getDataAtCoord(blocks, (18-HitBGame.BOARD_WIDTH/2)+x,y,
+                                BOARD_LENGTH-m_WallOffset) == 1)
                         {
-                            /* Lose */
-                            m_Player.sendMessage("You lost this round :(");
-                            nextstep = nextRound();
+                            block_found = true;
+                            
+                            /* But not in the cutout */
+                            if (!m_CurCutout[8-y][x])
+                            {
+                                /* Lose */
+                                m_Player.sendMessage("You broke the glass!");
+                                nextstep = nextRound();
+                                m_LostRound = true;
+                                break;
+                            }
+                        }
+                        
+                        /* Block does not exist in build area */
+                        else
+                        {
+                            /* But does exist in the cutout */
+                            if (m_CurCutout[8-y][x])
+                                design_matched = false;
                         }
                     }
+                
+                /* If the cutout wasn't matched, but there were blocks found */
+                if (!design_matched && block_found)
+                {
+                    /* Lose */
+                    m_Player.sendMessage("You didn't match the purple design!");
+                    nextstep = nextRound();
+                    m_LostRound = true;
+                }
+                
+                if (block_found)
+                    m_BlockFound = block_found;
             }
             
             m_RoundTime += nextstep;
         }
         else
+        {
+            if (!m_LostRound && m_BlockFound)
+            {
+                m_Player.sendMessage("You won this round!");
+                m_Score += 10;
+            }
+            else
+            {
+                if (!m_BlockFound)
+                    m_Player.sendMessage("You didn't match the purple design!");
+                
+                m_Player.sendMessage("You lost this round :(");
+                m_LostRound = false;
+            }
+            
             nextstep = nextRound();
+        }
         
+        /* Redraw the wall if there is a cutout loaded */
         if (m_RedrawWall && m_CurCutout != null)
         {
             World world = m_Player.getWorld();
@@ -180,17 +236,25 @@ public class HitBGame
                         m_Origin.getBlockY()+y, m_Origin.getBlockZ()+BOARD_LENGTH-1-m_WallOffset);
                     
                     if (b == null)
-                        System.out.println("NULLSHUTFUCKTITS!");
-                    
-                    if (m_CurCutout[8-y][x])
                     {
-                        b.setType(Material.WOOL);
-                        Wool d = new Wool(Material.WOOL);
-                        d.setColor(DyeColor.PURPLE);
-                        b.setData(d.getData());
+                        System.err.println("Block is somehow null!");
+                        continue;
                     }
-                    else
-                        b.setType(Material.GLASS);
+                    
+                    try
+                    {
+                        if (m_CurCutout[8-y][x])
+                        {
+                            b.setType(Material.WOOL);
+                            Wool d = new Wool(Material.WOOL);
+                            d.setColor(DyeColor.PURPLE);
+                            b.setData(d.getData());
+                        }
+                        else
+                            b.setType(Material.GLASS);
+                    }
+                    catch (ArrayIndexOutOfBoundsException e)
+                    {}
                 }
         }
         
