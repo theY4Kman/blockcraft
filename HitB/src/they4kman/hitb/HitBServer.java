@@ -1,5 +1,7 @@
 package they4kman.hitb;
 
+import java.util.Arrays;
+
 import org.zeromq.ZMQ;
 import org.bukkit.block.Block;
 import org.bukkit.Material;
@@ -20,12 +22,6 @@ public class HitBServer
     
     private ZMQ.Context m_Context;
     private ZMQ.Socket m_Socket;
-    
-    private static byte[] m_Blocks = new byte[9*36*36];
-    
-    private static final DyeColor[] m_Colors = {DyeColor.WHITE, DyeColor.ORANGE,
-        DyeColor.MAGENTA, DyeColor.YELLOW, DyeColor.SILVER, DyeColor.PURPLE,
-        DyeColor.BLUE, DyeColor.BROWN, DyeColor.GREEN, DyeColor.RED};
     
     /**
      * origin: The ground center of the blockcraft stage (y=player's feet)
@@ -69,8 +65,6 @@ public class HitBServer
             {
                 public void run()
                 {
-                    final int offsetxz = 18-HitBGame.BOARD_WIDTH/2;
-                    
                     /* Start the game main loop */
                     m_Plugin.getServer().getScheduler().scheduleAsyncDelayedTask(m_Plugin,
                         new Runnable()
@@ -86,30 +80,7 @@ public class HitBServer
                     {
                         final byte[] data = m_Socket.recv(0);
                         
-                        /* Square building area with lengths of BOARD_WIDTH */
-                        if (!m_Game.freezeBuild())
-                        {
-                            World world = m_Player.getWorld();
-                            for (int x=2; x<HitBGame.BOARD_WIDTH; x++)
-                                for (int y=0; y<HitBGame.BOARD_HEIGHT; y++)
-                                    for (int z=0; z<HitBGame.BOARD_WIDTH; z++)
-                                    {
-                                        Block b = world.getBlockAt(m_Origin.getBlockX()+x-2,
-                                            m_Origin.getBlockY()+8-y, m_Origin.getBlockZ()+z);
-                                        
-                                        if (getDataAtCoord(data, offsetxz+x,y,offsetxz+z) == 0)
-                                            b.setType(Material.AIR);
-                                        else
-                                        {
-                                            b.setType(Material.WOOL);
-                                            
-                                            Wool d = new Wool(Material.WOOL);
-                                            d.setColor(m_Colors[y]);
-                                        }
-                                    }
-                        
-                            m_Blocks = data;
-                        }
+                        m_Game.updateBlocks(data);
                     }
                 }
             });
@@ -121,18 +92,5 @@ public class HitBServer
         if (m_TaskID == -1)
             return;
         m_Plugin.getServer().getScheduler().cancelTask(m_TaskID);
-    }
-    
-    public byte[] getBlocks()
-    {
-        return m_Blocks;
-    }
-    
-    static public byte getDataAtCoord(byte[] data, int x, int y, int z)
-    {
-        if (data == null)
-            return 0;
-        
-        return data[x*9*36+y*36+z];
     }
 }

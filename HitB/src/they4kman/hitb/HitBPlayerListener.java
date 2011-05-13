@@ -23,8 +23,15 @@ public class HitBPlayerListener extends PlayerListener
     private HitBServer m_Server = null;
     private HitBBlockListener m_BlockListen = null;
 
-    public HitBPlayerListener(HitB instance) {
+    public HitBPlayerListener(HitB instance)
+    {
         plugin = instance;
+    }
+    
+    public void onDisable()
+    {
+      if (m_Server != null)
+          m_Server.stop();
     }
     
     public void onPlayerChat(PlayerChatEvent event)
@@ -73,24 +80,30 @@ public class HitBPlayerListener extends PlayerListener
         for (int x=startx; x<stopx; x++)
             for (int z=startz; z<stopz; z++)
             {
-                /* Ground */
+                /* Outside grass border */
                 Block b = world.getBlockAt(x, starty, z);
-                if (x == startx+1 || x == stopx-2)
+                if (x == startx || x == stopx-1)
+                    b.setType(Material.GRASS);
+                
+                /* Inside lanes */
+                else if (x == startx+1 || x == stopx-2)
                 {
                     b.setType(Material.WOOL);
                     Wool d = new Wool(Material.WOOL);
                     d.setColor(DyeColor.PURPLE);
                     b.setData(d.getData());
                 }
-                else if (x == startx || x == stopx-1)
-                    b.setType(Material.GRASS);
+                
+                /* Build freeze line */
                 else if (startx+1 < x && x < stopx-2 && z == startz+HitBGame.BOARD_WIDTH+1)
                 {
                     b.setType(Material.WOOL);
                     Wool d = new Wool(Material.WOOL);
-                    d.setColor(DyeColor.GREEN);
+                    d.setColor(DyeColor.BLUE);
                     b.setData(d.getData());
                 }
+                
+                /* Board */
                 else
                 {
                     b.setType(Material.WOOL);
