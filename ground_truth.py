@@ -17,7 +17,7 @@ def startClient(filename):
     for y,layer in enumerate(eval(fp.read())):
       for z,row in enumerate(layer):
         for x,char in enumerate(row):
-          voxels[x][8-y][z] = (char == '*')
+          voxels[x][y][z] = (char == '*')
   socket = zmq.Context().socket(zmq.PAIR)
   socket.connect('tcp://*:8134')
   while time.sleep(0.1) is None:
