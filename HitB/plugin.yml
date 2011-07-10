@@ -1,5 +1,10 @@
 name: Hole in the Blocks
-
 main: they4kman.hitb.HitB
-
 version: 0.1
+author: Zach "theY4Kman" Kanzler
+
+commands:
+    hitb:
+        description: Starts Hole in the Blocks. If "new" is passed or no game has been started, a new game board is created.
+        usage: |
+            /<command> [new]

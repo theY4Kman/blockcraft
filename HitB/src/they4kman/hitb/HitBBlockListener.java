@@ -1,5 +1,7 @@
 package they4kman.hitb;
 
+import java.util.ArrayList;
+
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.event.block.BlockListener;
@@ -9,43 +11,39 @@ import org.bukkit.event.block.BlockFromToEvent;
 
 public class HitBBlockListener extends BlockListener
 {
-    private HitB plugin;
+    private HitB m_Plugin;
+    private ArrayList m_Bounds = new ArrayList<short[]>();
     
-    private int startx;
-    private int stopx;
-    
-    private int starty;
-    private int stopy;
-    
-    private int startz;
-    private int stopz;
-    
-    public HitBBlockListener(HitB plugin, int startx, int stopx, int starty,
-        int stopy, int startz, int stopz)
+    public HitBBlockListener(HitB plugin)
     {
-        this.plugin = plugin;
-        
-        this.startx = startx;
-        this.stopx = stopx;
-        
-        this.starty = starty;
-        this.stopy = stopy;
-        
-        this.startz = startz;
-        this.stopz = stopz;
+        m_Plugin = plugin;
     }
     
-    public void setCoords(int startx, int stopx, int starty, int stopy,
-        int startz, int stopz)
+    public void clearBounds()
     {
-        this.startx = startx;
-        this.stopx = stopx;
+        m_Bounds.clear();
+    }
+    
+    public void addBounds(short x, short y, short z, short length, short width,
+        short height)
+    {
+        short[] bound = new short[] { x, y, z, length, width, height };
+        m_Bounds.add(bound);
+    }
+    
+    public boolean pointInBounds(int x, int y, int z)
+    {
+        for (int i=0; i<m_Bounds.size(); i++)
+        {
+            short[] bound = (short[])m_Bounds.get(i);
+            
+            if (bound[0] <= x && x <= bound[0] + bound[3] &&
+                bound[1] <= y && y <= bound[1] + bound[5] &&
+                bound[2] <= z && z <= bound[2] + bound[4])
+                return true;
+        }
         
-        this.starty = starty;
-        this.stopy = stopy;
-        
-        this.startz = startz;
-        this.stopz = stopz;
+        return false;
     }
     
     public void onBlockPlace(BlockPlaceEvent event)
@@ -53,9 +51,7 @@ public class HitBBlockListener extends BlockListener
         Block b = event.getBlock();
         Location l = b.getLocation();
         
-        if (startx <= l.getBlockX() && l.getBlockX() < stopx
-            && starty <= l.getBlockY() && l.getBlockY() < stopy
-            && startz <= l.getBlockZ() && l.getBlockZ() < stopz)
+        if (pointInBounds(l.getBlockX(), l.getBlockY(), l.getBlockZ()))
             event.setCancelled(true);
     }
     
@@ -64,20 +60,16 @@ public class HitBBlockListener extends BlockListener
         Block b = event.getBlock();
         Location l = b.getLocation();
         
-        if (startx <= l.getBlockX() && l.getBlockX() < stopx
-            && starty <= l.getBlockY() && l.getBlockY() < stopy
-            && startz <= l.getBlockZ() && l.getBlockZ() < stopz)
+        if (pointInBounds(l.getBlockX(), l.getBlockY(), l.getBlockZ()))
             event.setCancelled(true);
     }
     
     public void onBlockFromTo(BlockFromToEvent event)
     {
-        Block b = event.getToBlock();
+        Block b = event.getBlock();
         Location l = b.getLocation();
         
-        if (startx <= l.getBlockX() && l.getBlockX() < stopx
-            && starty <= l.getBlockY() && l.getBlockY() < stopy
-            && startz <= l.getBlockZ() && l.getBlockZ() < stopz)
+        if (pointInBounds(l.getBlockX(), l.getBlockY(), l.getBlockZ()))
             event.setCancelled(true);
     }
 };

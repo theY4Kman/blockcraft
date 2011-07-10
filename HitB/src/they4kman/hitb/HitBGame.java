@@ -297,7 +297,7 @@ public class HitBGame
     {
         public void run()
         {
-            mainloop();
+            //mainloop();////////////////////////////////////////
         }
     };
     
@@ -355,7 +355,8 @@ public class HitBGame
                         m_Origin.getBlockY()+y, m_Origin.getBlockZ()+BOARD_LENGTH-1-m_WallOffset);
                     try
                     {
-                        if (b != null)
+                        if (b != null && (BOARD_LENGTH-m_WallOffset>=BOARD_WIDTH
+                                || m_Blocks[offsetxz+x][y][offsetxz+BOARD_LENGTH-m_WallOffset-1] == 0))
                             b.setType(Material.AIR);
                     }
                     catch (ArrayIndexOutOfBoundsException e)
@@ -463,10 +464,8 @@ public class HitBGame
                     {
                         if (m_CurCutout[y][x])
                         {
-                            b.setType(Material.AIR);
-                            /*Wool d = new Wool(Material.WOOL);
-                            d.setColor(DyeColor.BLACK);
-                            b.setData(d.getData());*/
+                            if (m_Blocks[offsetxz+x][y][offsetxz+BOARD_LENGTH-m_WallOffset-1] == 0)
+                                b.setType(Material.AIR);
                         }
                         else
                         {
