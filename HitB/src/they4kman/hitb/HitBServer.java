@@ -144,6 +144,15 @@ public class HitBServer
                         
                         for (int i=0; i<num_commands; i++)
                         {
+                            if (dp >= data.length)
+                            {
+                                System.err.println("Command data pointer exceeded packet size! " +
+                                    "The HitB Python script sent a malformed packet.");
+                                System.err.println("Data pointer: " + dp + "  Packet size: " + data.length);
+                                System.err.println("Number of commands: " + num_commands + "  Processed: " + i);
+                                break;
+                            }
+                            
                             char cmd_type = (char)data[dp++];
                             
                             switch (cmd_type)

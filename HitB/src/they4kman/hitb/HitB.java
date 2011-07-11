@@ -2,6 +2,8 @@ package they4kman.hitb;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.ArrayList;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -27,7 +29,9 @@ public class HitB extends JavaPlugin
     
     private HitBServer m_Server = null;
     private HitBBlockListener m_BlockListen = null;
-   
+    private HitBEntityListener m_EntityListen = null;
+    
+    private ArrayList m_Bounds = new ArrayList<short[]>();
 
     public void onEnable()
     {
@@ -86,6 +90,18 @@ public class HitB extends JavaPlugin
                 Priority.Normal, this);
             pm.registerEvent(Event.Type.BLOCK_FROMTO, m_BlockListen,
                 Priority.Normal, this);
+            pm.registerEvent(Event.Type.BLOCK_CANBUILD, m_BlockListen,
+                Priority.Normal, this);
+            pm.registerEvent(Event.Type.BLOCK_IGNITE, m_BlockListen,
+                Priority.Normal, this);
+        }
+        
+        if (m_EntityListen == null)
+        {
+            m_EntityListen = new HitBEntityListener(this);
+            
+            pm.registerEvent(Event.Type.ENTITY_EXPLODE, m_EntityListen,
+                Priority.Normal, this);
         }
         
         /* The origin is the start of the building area */
@@ -102,15 +118,31 @@ public class HitB extends JavaPlugin
         return true;
     }
     
+    public boolean pointInBounds(int x, int y, int z)
+    {
+        for (int i=0; i<m_Bounds.size(); i++)
+        {
+            short[] bound = (short[])m_Bounds.get(i);
+            
+            if (bound[0] <= x && x <= bound[0] + bound[3] &&
+                bound[1] <= y && y <= bound[1] + bound[5] &&
+                bound[2] <= z && z <= bound[2] + bound[4])
+                return true;
+        }
+        
+        return false;
+    }
+    
     public void clearBounds()
     {
-        m_BlockListen.clearBounds();
+        m_Bounds.clear();
     }
     
     public void addBounds(short x, short y, short z, short length, short width,
         short height)
     {
-        m_BlockListen.addBounds(x, y, z, length, width, height);
+        short[] bound = new short[] { x, y, z, length, width, height };
+        m_Bounds.add(bound);
     }
     
     public boolean isDebugging(final Player player)
