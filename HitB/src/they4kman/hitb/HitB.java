@@ -102,6 +102,8 @@ public class HitB extends JavaPlugin
             
             pm.registerEvent(Event.Type.ENTITY_EXPLODE, m_EntityListen,
                 Priority.Normal, this);
+            pm.registerEvent(Event.Type.ENTITY_DAMAGE, m_EntityListen,
+                Priority.Normal, this);
         }
         
         /* The origin is the start of the building area */
