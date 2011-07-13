@@ -8,6 +8,8 @@ import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.BlockBurnEvent;
 
 public class HitBBlockListener extends BlockListener
 {
@@ -46,6 +48,24 @@ public class HitBBlockListener extends BlockListener
     }
     
     public void onBlockIgnite(BlockIgniteEvent event)
+    {
+        Block b = event.getBlock();
+        Location l = b.getLocation();
+        
+        if (m_Plugin.pointInBounds(l.getBlockX(), l.getBlockY(), l.getBlockZ()))
+            event.setCancelled(true);
+    }
+    
+    public void onBlockDamage(BlockDamageEvent event)
+    {
+        Block b = event.getBlock();
+        Location l = b.getLocation();
+        
+        if (m_Plugin.pointInBounds(l.getBlockX(), l.getBlockY(), l.getBlockZ()))
+            event.setCancelled(true);
+    }
+    
+    public void onBlockBurn(BlockBurnEvent event)
     {
         Block b = event.getBlock();
         Location l = b.getLocation();

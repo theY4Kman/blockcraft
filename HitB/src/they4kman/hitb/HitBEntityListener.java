@@ -40,12 +40,9 @@ public class HitBEntityListener extends EntityListener
         }
     }
     
-    // Prevents damage from being inside a block
+    // Prevents damage while inside the board
     public void onEntityDamage(EntityDamageEvent event)
     {
-        if (event.getCause() != EntityDamageEvent.DamageCause.SUFFOCATION)
-            return;
-        
         Entity ent = event.getEntity();
         if (!(ent instanceof Player))
             return;

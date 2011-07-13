@@ -94,6 +94,10 @@ public class HitB extends JavaPlugin
                 Priority.Normal, this);
             pm.registerEvent(Event.Type.BLOCK_IGNITE, m_BlockListen,
                 Priority.Normal, this);
+            pm.registerEvent(Event.Type.BLOCK_DAMAGE, m_BlockListen,
+                Priority.Normal, this);
+            pm.registerEvent(Event.Type.BLOCK_BURN, m_BlockListen,
+                Priority.Normal, this);
         }
         
         if (m_EntityListen == null)
