@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.material.Wool;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.Location;
 import org.bukkit.DyeColor;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -30,6 +31,7 @@ public class HitBServer
     public final char COMMAND_COLORWOOL = 'w';
     public final char COMMAND_SETBOUNDS = 's';
     public final char COMMAND_CLEARBOUNDS = 'c';
+    public final char COMMAND_TNTPRIMED = 't';
     
     /**
      * origin: The ground center of the blockcraft stage (y=player's feet)
@@ -46,7 +48,7 @@ public class HitBServer
         {
             if (m_Context == null)
                 m_Context = ZMQ.context(1);
-            m_Socket = m_Context.socket(ZMQ.PAIR);
+            m_Socket = m_Context.socket(ZMQ.PULL);
         }
         catch (UnsatisfiedLinkError ex)
         {
@@ -131,6 +133,11 @@ public class HitBServer
                          * 'c' - Clear bounds for the block listener. Resets all
                          *       the bounds set with the 's' command. Empty
                          *       command.
+                         *
+                         * 't' - Place a TNTPrimed entity. Begins with three
+                         *       shorts x, y, z representing the offset from the
+                         *       origin to place the TNTPrimed. Ends with a
+                         *       short representing the number of fuse ticks.
                          */
                         
                         // Where we are in the data array
@@ -292,6 +299,42 @@ public class HitBServer
                             case COMMAND_CLEARBOUNDS:
                                 {
                                     m_Plugin.clearBounds();
+                                    
+                                    break;
+                                }
+                            
+                            case COMMAND_TNTPRIMED:
+                                {
+                                    byte[] buf = new byte[2];
+                                    short[] offset = new short[3];
+                                    
+                                    for (int j=0; j<3; j++)
+                                    {
+                                        System.arraycopy(data, dp, buf, 0, 2);
+                                        dp += 2;
+                                        offset[j] = byteArrayToShort(buf);
+                                    }
+                                    
+                                    System.arraycopy(data, dp, buf, 0, 2);
+                                    dp += 2;
+                                    
+                                    final short ticks = byteArrayToShort(buf);
+                                    final short[] foffset = new short[] {
+                                        offset[0], offset[1], offset[2] };
+                                    
+                                    scheduler.scheduleSyncDelayedTask(m_Plugin,
+                                        new Runnable()
+                                        {
+                                            public void run()
+                                            {
+                                                World world = m_Player.getWorld();
+                                                Location l = new Location(world, (double)foffset[0]+0.5,
+                                                    (double)foffset[1], (double)foffset[2]+0.5);
+                                                
+                                                TNTPrimed tnt = world.spawn(l, TNTPrimed.class);
+                                                tnt.setFuseTicks(ticks);
+                                            }
+                                        });
                                     
                                     break;
                                 }
