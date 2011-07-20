@@ -1,0 +1,18 @@
+name: B.A.D.A.S.S.
+main: they4kman.BADASS.BADASS
+version: 0.1
+author: Zach "theY4Kman" Kanzler
+
+commands:
+    startsave:
+        description: Gives you the blocks needed to save a design.
+        usage: |
+            /<command>
+    savedesign:
+        description: Saves all the blocks within the four marker blocks to the design name specified.
+        usage: |
+            /<command> <design_name>
+    savelegos:
+        description: Saves the Duplo design from blockplayer to the design name specified.
+        usage: |
+            /<command> <design_name>
