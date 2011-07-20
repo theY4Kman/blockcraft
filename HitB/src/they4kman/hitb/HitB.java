@@ -70,13 +70,8 @@ public class HitB extends JavaPlugin
         int direction = Math.round((location.getYaw() / 4)) % 4;
         
         int startx = location.getBlockX() - 2;
-        int stopx = startx + HitBGame.BOARD_WIDTH + 2;
-        
         int startz = location.getBlockZ() - 2;
-        int stopz = startz + HitBGame.BOARD_LENGTH + 2;
-        
         int starty = location.getBlockY() - 1;
-        int stopy = starty + HitBGame.BOARD_HEIGHT + 2;
         
         /* Register block place/destroy handlers */
         PluginManager pm = getServer().getPluginManager();
