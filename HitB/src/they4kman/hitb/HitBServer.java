@@ -18,7 +18,6 @@ public class HitBServer
 {
     private final HitB m_Plugin;
     private int m_TaskID = -1;
-    private HitBGame m_Game = null;
     
     private Location m_Origin;
     private Player m_Player;
@@ -72,8 +71,6 @@ public class HitBServer
     /* Begins the network event loop */
     public void start()
     {
-        //m_Game = new HitBGame(m_Plugin, this, m_Player, m_Origin);
-        
         if (m_Socket == null)
         {
             System.err.println("Can't start server with null socket.");
@@ -86,16 +83,6 @@ public class HitBServer
             {
                 public void run()
                 {
-                    /* Start the game main loop */
-                    /*m_Plugin.getServer().getScheduler().scheduleAsyncDelayedTask(m_Plugin,
-                        new Runnable()
-                        {
-                            public void run()
-                            {
-                                m_Game.mainloop();
-                            }
-                        });*/
-                    
                     /* 0MQ loop */
                     while (true)
                     {
@@ -133,11 +120,13 @@ public class HitBServer
                          * 'c' - Clear bounds for the block listener. Resets all
                          *       the bounds set with the 's' command. Empty
                          *       command.
+                         *       TOTAL BYTES: 0
                          *
                          * 't' - Place a TNTPrimed entity. Begins with three
                          *       shorts x, y, z representing the offset from the
                          *       origin to place the TNTPrimed. Ends with a
                          *       short representing the number of fuse ticks.
+                         *       TOTAL BYTES: 8
                          */
                         
                         // Where we are in the data array
